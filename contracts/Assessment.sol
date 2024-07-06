@@ -1,18 +1,21 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
-//import "hardhat/console.sol";
-
 contract Assessment {
     address payable public owner;
     uint256 public balance;
+    string public accountName;
+    uint256 public transactionCount;
 
     event Deposit(uint256 amount);
     event Withdraw(uint256 amount);
+    event SetAccountName(string name);
 
     constructor(uint initBalance) payable {
         owner = payable(msg.sender);
         balance = initBalance;
+        accountName = "My Account";
+        transactionCount = 0;
     }
 
     function getBalance() public view returns(uint256){
@@ -27,6 +30,7 @@ contract Assessment {
 
         // perform transaction
         balance += _amount;
+        transactionCount++;
 
         // assert transaction completed successfully
         assert(balance == _previousBalance + _amount);
@@ -50,11 +54,18 @@ contract Assessment {
 
         // withdraw the given amount
         balance -= _withdrawAmount;
+        transactionCount++;
 
         // assert the balance is correct
         assert(balance == (_previousBalance - _withdrawAmount));
 
         // emit the event
         emit Withdraw(_withdrawAmount);
+    }
+
+    function setAccountName(string memory _newName) public {
+        require(msg.sender == owner, "You are not the owner of this account");
+        accountName = _newName;
+        emit SetAccountName(_newName);
     }
 }
